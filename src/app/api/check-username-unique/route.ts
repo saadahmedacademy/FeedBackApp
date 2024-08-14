@@ -34,18 +34,17 @@ export async function GET(request: Request) {
 
     const { username } = result.data;
 
-    const existingVerifiedUser = await UserModel.findOne({
+    const existingUser = await UserModel.findOne({
       username,
-      isVerified: true,
     });
 
-    if (existingVerifiedUser) {
+    if (existingUser) {
       return Response.json(
         {
           success: false,
           message: 'Username is already taken',
         },
-        { status: 200 }
+        { status: 409 } // Changed to 409 Conflict
       );
     }
 
