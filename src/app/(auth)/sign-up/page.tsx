@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useDebounceCallback } from "usehooks-ts";
+import { useDebounce } from "usehooks-ts";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,8 @@ export default function SignUpForm() {
   const [usernameMessage, setUsernameMessage] = useState("");
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const debounced = useDebounceCallback(setUsername, 300);
+  const debouncedUsername = useDebounce(username, 300); // Debounce username input
+
   const [passwordShowToggle, setPasswordShowToggle] = useState(false);
 
   const router = useRouter();
@@ -47,12 +48,12 @@ export default function SignUpForm() {
 
   useEffect(() => {
     const checkUsernameUnique = async () => {
-      if (username) {
+      if (debouncedUsername) {
         setIsCheckingUsername(true);
         setUsernameMessage("");
         try {
           const response = await axios.get<ApiResponse>(
-            `/api/check-username-unique?username=${username}`
+            `/api/check-username-unique?username=${debouncedUsername}`
           );
           setUsernameMessage(response.data.message);
         } catch (error) {
@@ -66,45 +67,40 @@ export default function SignUpForm() {
       }
     };
 
-    if (username) {
-      checkUsernameUnique();
-    }
-  }, [username]);
+    checkUsernameUnique(); // Call the function on debouncedUsername change
+  }, [debouncedUsername]);
 
-  // To show password
   const showPassword = () => {
     setPasswordShowToggle(!passwordShowToggle);
   };
 
-  // To submit the form
   const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
     setIsSubmitting(true);
     try {
       const response = await axios.post<ApiResponse>("/api/sign-up", data);
+
+      console.log("response", response.data);
 
       toast({
         title: "Success",
         description: response.data.message,
       });
 
-      router.replace(`/verify/${username}`);
-
-      setIsSubmitting(false);
+      router.replace(`/verify/${data.username}`);
     } catch (error) {
       console.error("Error during sign-up:", error);
 
       const axiosError = error as AxiosError<ApiResponse>;
-
-      // Default error message
-      let errorMessage = axiosError.response?.data.message;
-      ("There was a problem with your sign-up. Please try again.");
+      const errorMessage =
+        axiosError.response?.data.message ||
+        "There was a problem with your sign-up. Please try again.";
 
       toast({
         title: "Sign Up Failed",
         description: errorMessage,
         variant: "destructive",
       });
-
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -123,7 +119,7 @@ export default function SignUpForm() {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="flex flex-col space-y-4  "
+              className="flex flex-col space-y-3"
             >
               <FormField
                 name="username"
@@ -138,19 +134,23 @@ export default function SignUpForm() {
                           {...field}
                           onChange={(e) => {
                             field.onChange(e.target.value);
-                            debounced(e.target.value);
+                            setUsername(e.target.value); // Update local state
                           }}
                         />
 
                         <p
-                          className={`text-sm  font-semibold flex gap-1 items-center ${
+                          className={`text-sm font-semibold flex gap-1 items-center ${
                             usernameMessage === "Username is unique"
                               ? "text-green-500"
                               : "text-red-500"
                           }`}
                         >
-                          {usernameMessage} { usernameMessage === "Username is unique" && <div className="bg-green-500 w-[17px] h-[17px] p-[0.rem] rounded-full flex justify-center items-center"> <TiTick className="text-xl text-white" /></div>
-                            : null}
+                          {usernameMessage}
+                          {usernameMessage === "Username is unique" && (
+                            <div className="bg-green-500 w-[17px] h-[17px] p-[0.rem] rounded-full flex justify-center items-center">
+                              <TiTick className="text-xl text-white" />
+                            </div>
+                          )}
                         </p>
                         <p className="text-red-500">
                           {isCheckingUsername && (
@@ -214,7 +214,7 @@ export default function SignUpForm() {
                   </>
                 ) : (
                   "Sign Up"
-                )}{" "}
+                )}
               </Button>
             </form>
           </Form>
