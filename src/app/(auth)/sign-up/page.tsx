@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useDebounce } from "usehooks-ts";
+import { useDebounceCallback } from 'usehooks-ts'
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ export default function SignUpForm() {
   const [usernameMessage, setUsernameMessage] = useState("");
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const debouncedUsername = useDebounce(username, 300); // Debounce username input
+  const debouncedUsername = useDebounceCallback(setUsername, 300); // Debounce username input
 
   const [passwordShowToggle, setPasswordShowToggle] = useState(false);
 
@@ -48,12 +48,12 @@ export default function SignUpForm() {
 
   useEffect(() => {
     const checkUsernameUnique = async () => {
-      if (debouncedUsername) {
+      if (username) {
         setIsCheckingUsername(true);
         setUsernameMessage("");
         try {
           const response = await axios.get<ApiResponse>(
-            `/api/check-username-unique?username=${debouncedUsername}`
+            `/api/check-username-unique?username=${username}`
           );
           setUsernameMessage(response.data.message);
         } catch (error) {
@@ -68,7 +68,7 @@ export default function SignUpForm() {
     };
 
     checkUsernameUnique(); // Call the function on debouncedUsername change
-  }, [debouncedUsername]);
+  }, [username]);
 
   const showPassword = () => {
     setPasswordShowToggle(!passwordShowToggle);
@@ -134,7 +134,7 @@ export default function SignUpForm() {
                           {...field}
                           onChange={(e) => {
                             field.onChange(e.target.value);
-                            setUsername(e.target.value); // Update local state
+                            debouncedUsername(e.target.value); // Update local state
                           }}
                         />
 
