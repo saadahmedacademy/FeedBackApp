@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -44,7 +43,7 @@ const onSubmit = async (data : z.infer<typeof verifySchema>) => {
         description: reponse.data.message,
       })
 
-      router.push(`sign-in`);   
+      router.replace(`/sign-in`);
     }
     
   } catch (error) {

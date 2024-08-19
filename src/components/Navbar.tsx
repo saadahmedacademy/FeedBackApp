@@ -1,38 +1,44 @@
-'use client'
+'use client';
 
-import React from 'react';
-import Link from 'next/link';
-import { useSession, signOut } from 'next-auth/react';
-import { Button } from './ui/button';
+import { signOut, useSession } from 'next-auth/react';
 import { User } from 'next-auth';
+import Link from 'next/link';
+import { Button } from '@react-email/components';
 
-function Navbar() {
+export default function Navbar() {
   const { data: session } = useSession();
-  const user : User = session?.user;
+  const user = session?.user as User;
 
   return (
-    <nav className="p-4 md:p-6 shadow-md bg-gray-900 text-white">
-      <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
-        <a href="#" className="text-xl font-bold mb-4 md:mb-0">
-          True Feedback
+    <div className="bg-orange-500 min-w-full">
+      <nav className="container mx-auto flex flex-col md:flex-row justify-evenly items-center p-4">
+        <a href="/">
+          <span className="text-3xl sm:text-xl font-bold text-white border-b-4 border-double border-white pb-2" >
+            Mystry Messages
+          </span>
         </a>
-        {session ? (
-          <>
-            <span className="mr-4">
-              Welcome, {user.username || user.email}
-            </span>
-            <Button onClick={() => signOut()} className="w-full md:w-auto bg-slate-100 text-black" variant='outline'>
-              Logout
-            </Button>
-          </>
-        ) : (
-          <Link href="/sign-in">
-            <Button className="w-full md:w-auto bg-slate-100 text-black" variant={'outline'}>Login</Button>
-          </Link>
-        )}
-      </div>
-    </nav>
+        <div className="flex gap-4 items-center mt-5 md:mt-0 ">
+          {session ? (
+            <div className="flex items-center space-x-2 md:space-x-4">
+              <span className="text-lg font-medium rounded-full px-4 py-2 border-2 border-white text-white hover:bg-green-500 hover:text-white cursor-pointer transition">
+                Welcome, {user.username || user.email}
+              </span>
+              <span
+                className="text-lg font-medium rounded-full px-4 py-2 border-2 border-white text-white hover:bg-red-500 hover:text-white cursor-pointer transition"
+                onClick={() => signOut()}
+              >
+                Log Out
+              </span>
+            </div>
+          ) : (
+            <Link href="/sign-in">
+              <Button className="text-lg font-medium rounded-full px-4 py-2 border-2 border-white text-white hover:bg-green-500 hover:text-white transition">
+                Sign In
+              </Button>
+            </Link>
+          )}
+        </div>
+      </nav>
+    </div>
   );
 }
-
-export default Navbar;
