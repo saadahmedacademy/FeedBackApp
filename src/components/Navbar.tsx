@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { signOut, useSession } from 'next-auth/react';
-import { User } from 'next-auth';
-import Link from 'next/link';
-import { Button } from '@react-email/components';
+import { signOut, useSession } from "next-auth/react";
+import { User } from "next-auth";
+import Link from "next/link";
+import { Button } from "@react-email/components";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -13,7 +13,7 @@ export default function Navbar() {
     <div className="bg-orange-500 min-w-full">
       <nav className="container mx-auto flex flex-col md:flex-row justify-evenly items-center p-4">
         <a href="/">
-          <span className="text-3xl sm:text-xl font-bold text-white border-b-4 border-double border-white pb-2" >
+          <span className="text-3xl sm:text-xl font-bold text-white border-b-4 border-double border-white pb-2">
             Mystry Messages
           </span>
         </a>
