@@ -4,8 +4,9 @@ import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/components/ui/use-toast";
 import { Message } from "@/model/User";
 import { AcceptMessageSchema } from "@/schemas/acceptMessageSchema";
+import { ApiResponse } from "@/types/ApiResponse";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 
 import React, { useCallback, useState } from 'react'
@@ -18,42 +19,67 @@ function Dashboard() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSwitching, setIsSwitching] = useState<boolean>(false);
 
-  // To show notification
   const { toast } = useToast();
 
-  // To delete the messages from ui 
-  const handleDeleteMessages  = (messagesId : string ) => {
+  const handleDeleteMessages = (messagesId: string) => {
     setMessages(messages.filter(message => message._id !== messagesId));
-    
-    
-    const form = useForm<z.infer<typeof AcceptMessageSchema>>({
-      resolver : zodResolver(AcceptMessageSchema)
-    })
- 
-
-    // destructure some form methods
-    const { watch , register , setValue  } = form;
-
-    // now tell the watch method which field should it watch
-    const acceptMessages = watch('acceptMessages');
-    
-    const fetchAcceptMessages = useCallback(async () => {
-      setIsLoading(true);
-      try {
-        const response = await axios.get('/api/accept-messages');
-        setValue('acceptMessages', response.data.isAcceptingMessages);
-
-      } catch (error) {
-        
-      }
-    }, [setValue]);
   }
+
+  const form = useForm<z.infer<typeof AcceptMessageSchema>>({
+    resolver: zodResolver(AcceptMessageSchema)
+  });
+
+  const { watch, register, setValue } = form;
+  const acceptMessages = watch('acceptMessages');
+
+  const fetchSingleMessage = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get<ApiResponse>('/api/accept-messages');
+      setValue('acceptMessages', response.data.isAcceptingMessages ?? false);
+    } catch (error) {
+      const showError = error as AxiosError<ApiResponse>;
+      toast({
+        title: "Error",
+        description: showError.response?.data.message || "Error while fetching messages",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [setValue, toast]);
+
+  const fetchAllMessages = useCallback(async (refresh: boolean = false) => {
+    setIsLoading(true);
+    setIsSwitching(false);
+    try {
+      const response = await axios.get<ApiResponse>('/api/get-messages');
+      setMessages(response.data.messages || []);
+      if (refresh) {
+        toast({
+          title: "Refreshed Messages",
+          description: "Messages refreshed successfully"
+        });
+      }
+    } catch (error) {
+      const showError = error as AxiosError<ApiResponse>;
+      toast({
+        title: "Error",
+        description: showError.response?.data.message || "Error while fetching messages",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+      setIsSwitching(false);
+    }
+  }, [toast]);
+
   return (
-    
+   
     <div>
       
     </div>
   )
 }
 
-export default Dashboard
+export default Dashboard;
