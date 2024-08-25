@@ -73,4 +73,9 @@
   body {
     @apply bg-background text-foreground;
   }
+
+body::-webkit-scrollbar {
+    display: none; /* For Chrome, Safari, and Opera */
+  }
+
 }
