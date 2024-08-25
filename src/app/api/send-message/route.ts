@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     // Check if the user is accepting messages
     if (!user.isAcceptingMessages) {
       return Response.json(
-        { message: 'User is not accepting messages', success: false },
+        { message: 'User is not accepting messages right now', success: false },
         { status: 403 } // 403 Forbidden status
       );
     }
@@ -42,3 +42,5 @@ export async function POST(request: Request) {
     );
   }
 }
+
+
