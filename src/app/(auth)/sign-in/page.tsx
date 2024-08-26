@@ -85,7 +85,7 @@ export default function SignUpForm() {
   
   return (
     <div className="flex justify-center items-center min-h-screen bg-blue-700">
-      <div className="w-full max-w-md p-8 bg-white rounded-lg space-y-2 shadow-lg ">
+      <div className="lg:w-full sm:max-w-md p-8 bg-white rounded-lg space-y-2 shadow-lg ">
         <div className="text-center">
           <p className="mb-4">Sign In to get started</p>
         </div>
