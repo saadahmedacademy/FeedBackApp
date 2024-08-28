@@ -56,6 +56,7 @@ export default function SignUpForm() {
             `/api/check-username-unique?username=${username}`
           );
           setUsernameMessage(response.data.message);
+          console.log(response.data.message)
         } catch (error) {
           const axiosError = error as AxiosError<ApiResponse>;
           setUsernameMessage(
@@ -107,7 +108,7 @@ export default function SignUpForm() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-blue-700">
-      <div className="w-full max-w-md p-8 bg-white rounded-lg space-y-2 shadow-lg ">
+      <div className="md:w-full sm:max-w-md p-8 min-h-[60%] bg-white rounded-lg space-y-2 shadow-lg ">
         <div className="text-center">
           <h1 className="font-extrabold tracking-tight lg:text-4xl my-6">
             Join The Mystery Message App
