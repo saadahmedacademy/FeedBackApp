@@ -1,8 +1,10 @@
-import { NextAuthOptions } from 'next-auth';
+import { NextAuthOptions,Session } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/model/User';
+import { JWT } from 'next-auth/jwt';
+import { User as NextAuthUser } from 'next-auth';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -44,7 +46,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user } :  { token: JWT; user?: NextAuthUser }) {
       if (user) {
         console.log('User:', user); // Check what data is passed from authorize
         token._id = user._id?.toString(); // Convert ObjectId to string
@@ -54,7 +56,7 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token } : { session: Session; token: JWT }) {
       if (token) {
         console.log('Token:', token); // Check what data is passed to the session
         session.user._id = token._id;

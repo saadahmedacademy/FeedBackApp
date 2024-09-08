@@ -5,12 +5,12 @@ import { User } from 'next-auth';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/options';
 
-export async function GET(request: Request ,{params} : { params: {messageid: string}}) {
+export async function DELETE(request: Request ,{params} : { params: {messageid: string}}) {
 
   const messageId = params.messageid
   await dbConnect();
   const session = await getServerSession(authOptions);
-  const _user: User = session?.user;
+  const _user = session?.user as User;
 
   if (!session || !_user) {
     return Response.json(
