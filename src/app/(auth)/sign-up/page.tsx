@@ -108,11 +108,11 @@ export default function SignUpForm() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-blue-700">
-<<<<<<< HEAD
+
       <div className="md:w-full sm:max-w-md p-8 min-h-[60%] bg-white rounded-lg space-y-2 shadow-lg ">
-=======
+
       <div className=" lg:w-full sm:max-w-md p-8 bg-white rounded-lg space-y-2 shadow-lg ">
->>>>>>> a7a8fddcf76a1fffd87e58e000783fca4d3d8210
+
         <div className="text-center">
           <h1 className="font-extrabold tracking-tight lg:text-4xl my-6">
             Join The Mystery Message App
@@ -233,6 +233,7 @@ export default function SignUpForm() {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }

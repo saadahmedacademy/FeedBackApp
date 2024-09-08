@@ -13,6 +13,8 @@ export const ProfilePage  = () => {
   const { username } = useParams();
   const { toast } = useToast();
 
+
+
   // To allow message to sent to the user
   const handleAllowMessage = async () => {
     try {
@@ -71,6 +73,24 @@ export const ProfilePage  = () => {
       setIsSending(false);
     }
   };
+
+  
+  useEffect(() => {
+    const fetchMessageContent = async () => {
+      try {
+        const response = await axios.get(`/api/u/${username}`);
+        setContent(response.data.content || "");
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Unable to load message content.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchMessageContent();
+  }, [username, toast]);
 
   return (
     <div className="min-w-full min-h-screen bg-blue-600 text-white">

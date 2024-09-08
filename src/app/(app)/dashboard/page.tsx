@@ -125,13 +125,13 @@ function Dashboard() {
     }
   };
 
-  // if (session === undefined) {
-  //   return (
-  //     <div className="flex justify-center items-center h-screen bg-gray-100 text-black">
-  //       <h1 className="text-2xl font-bold">Loading...</h1>
-  //     </div>
-  //   );
-  // }
+  if (session === undefined) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gray-100 text-black">
+        <h1 className="text-2xl font-bold">Loading...</h1>
+      </div>
+    );
+  }
 
   // Handle the case where the user is not authenticated
   if (!session?.user) {
@@ -154,6 +154,20 @@ function Dashboard() {
       title: "Copied",
       description: "Link copied to clipboard",
     });
+  };
+
+  // To edit messagee
+  const handleEditMessage = async (content: string) => {
+    try {
+      // Sending the message content to the API
+      await axios.post(`/api/u/${username}`, { content });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Unable to send the content to the input field.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -212,6 +226,7 @@ function Dashboard() {
               key={message._id}
               message={message}
               onMessageDelete={handleDeleteMessages}
+              onEditMessage={handleEditMessage}
               username={username}
             />
           ))
