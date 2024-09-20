@@ -25,7 +25,7 @@ import { ApiResponse } from "@/types/ApiResponse";
 interface MessageCardProps {
   message: Message;
   onMessageDelete: (messageId: string) => void;
-  onEditMessage: (content: string) => void;
+  onEditMessage: (content: string, messageid:string) => void;
   username?: string;
 }
 
@@ -59,7 +59,7 @@ const MessageCard: React.FC<MessageCardProps> = ({
   };
 
   const handleEditClick = () => {
-    onEditMessage(message.content);
+    onEditMessage(message.content, message._id);
   };
 
   return (

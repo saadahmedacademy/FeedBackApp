@@ -7,7 +7,9 @@ import { useSession } from "next-auth/react";
 import { AcceptMessageSchema } from "@/schemas/acceptMessageSchema";
 import { ApiResponse } from "@/types/ApiResponse";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError } from "axios"
+import { useRouter } from "next/navigation";
+
 
 import React, { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -27,6 +29,8 @@ function Dashboard() {
 
   const { toast } = useToast();
   const { data: session } = useSession();
+  const router = useRouter();
+
 
   // Your existing code to handle the session
   const user = session?.user as User;
@@ -41,7 +45,6 @@ function Dashboard() {
 
   const handleDeleteMessages = (messageId: string) => {
     setMessages(messages.filter((message) => message._id !== messageId));
-
   };
 
   const fetchAcceptMessages = useCallback(async () => {
@@ -157,21 +160,26 @@ function Dashboard() {
   };
 
   // To edit messagee
-  const handleEditMessage = async (content: string) => {
-    try {
-      // Sending the message content to the API
-      await axios.post(`/api/u/${username}`, { content });
+  const handleEditMessage = async (content: string, messageId: string) => {
+    console.log("Attempting to post message content:", content); // Debug log
+    try { 
+      const response = await axios.post("/api/save-message-content", { content });
+      console.log("Response from API:", response.data); // Debug log
+      router.push(`${profileUrl}`);
+      setTimeout(() =>{
+        handleDeleteMessages(messageId)},3000)
     } catch (error) {
+      console.error("Error posting message content:", error); // Debug log
       toast({
         title: "Error",
-        description: "Unable to send the content to the input field.",
+        description: "Unable to edit the message.",
         variant: "destructive",
       });
     }
   };
 
   return (
-    <div className="my-8 mx-3 p-6 bg-white rounded shadow-lg max-w-6xl md:mx-8 lg:mx-auto">
+    <div className="my-8 mx-3 p-6 bg-white rounded shadow-lg max-w-5xl md:mx-8 lg:mx-auto">
       <h1 className="text-2xl md:text-4xl font-bold mb-4">User Dashboard</h1>
 
       <div className="mb-4">
@@ -194,7 +202,7 @@ function Dashboard() {
       <div className="mb-4">
         <Switch
           {...register("acceptMessages")}
-          checked={acceptMessages}
+          checked={form.watch("acceptMessages")}
           onCheckedChange={handleSwitchChange}
           disabled={isSwitching}
         />

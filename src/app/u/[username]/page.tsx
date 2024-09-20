@@ -14,7 +14,6 @@ export const ProfilePage  = () => {
   const { toast } = useToast();
 
 
-
   // To allow message to sent to the user
   const handleAllowMessage = async () => {
     try {
@@ -90,6 +89,46 @@ export const ProfilePage  = () => {
     };
 
     fetchMessageContent();
+  }, [username, toast]);
+
+  
+   // To get the message for edit
+   useEffect(() => {
+    const fetchContentAndPermissions = async () => {
+      try {
+        const [contentResponse, permissionResponse] = await Promise.all([
+          axios.get(`/api/save-message-content`),
+          axios.get<ApiResponse>("/api/accept-messages")
+        ]);
+
+        // Set fetched content
+        setContent(contentResponse.data.content || "");
+
+        // Check message permissions
+        if (permissionResponse.data.isAcceptingMessages) {
+          setAllowMessage(true);
+          toast({
+            title: "Success",
+            description: permissionResponse.data.message || "You can send messages",
+          });
+        } else {
+          setAllowMessage(false);
+          toast({
+            title: "Error",
+            description: permissionResponse.data.message || "You can't send messages",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Unable to load data.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchContentAndPermissions();
   }, [username, toast]);
 
   return (
