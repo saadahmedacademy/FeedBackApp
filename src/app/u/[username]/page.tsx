@@ -1,8 +1,8 @@
 "use client";
 import { useToast } from "@/components/ui/use-toast";
 import { ApiResponse } from "@/types/ApiResponse";
-import axios from "axios";
-import { useParams } from "next/navigation";
+import axios, { AxiosError } from "axios";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export const ProfilePage  = () => {
@@ -11,6 +11,7 @@ export const ProfilePage  = () => {
   const [isSending, setIsSending] = useState<boolean>(false);
   const [suggestedMessages, setSuggestedMessages] = useState<string[]>(["message1","message2","message3"])
   const { username } = useParams();
+  const router = useRouter();
   const { toast } = useToast();
 
 
@@ -61,6 +62,8 @@ export const ProfilePage  = () => {
           title: "Success",
           description: response.data.message || "Message sent successfully",
         });
+        router.push(`/dashboard`);
+
       }
     } catch (error) {
       toast({
@@ -73,23 +76,6 @@ export const ProfilePage  = () => {
     }
   };
 
-  
-  useEffect(() => {
-    const fetchMessageContent = async () => {
-      try {
-        const response = await axios.get(`/api/u/${username}`);
-        setContent(response.data.content || "");
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Unable to load message content.",
-          variant: "destructive",
-        });
-      }
-    };
-
-    fetchMessageContent();
-  }, [username, toast]);
 
   
    // To get the message for edit
@@ -131,6 +117,31 @@ export const ProfilePage  = () => {
     fetchContentAndPermissions();
   }, [username, toast]);
 
+  // To suggest messages 
+  // To suggest messages
+const suggestNewMessages = async () => {
+  try {
+    const response = await axios.post("/api/suggest-messages");
+
+    // Set the suggested messages state with the returned array
+    setSuggestedMessages(response.data.suggestions || []);
+    
+    toast({
+      title: "Success",
+      description: "New messages suggested successfully.",
+    });
+  } catch (error) {
+    const showError = error as AxiosError<ApiResponse>;
+
+    toast({
+      title: "Error",
+      description: showError.response?.data.message || "Something went wrong. Please try again later.",
+      variant: "destructive",
+    });
+  }
+};
+
+
   return (
     <div className="min-w-full min-h-screen bg-blue-600 text-white">
       <div className="container mx-auto py-6">
@@ -157,21 +168,26 @@ export const ProfilePage  = () => {
       </div>
 
       <div className="container md:ml-24 py-4 md:px-7 flex flex-col space-y-2 items-start">
-        <button className="rounded-md py-2 px-4 bg-black text-white w-max">
-          Suggest Messages
-        </button>
+        <button onClick={suggestNewMessages} className="rounded-md py-2 px-4 bg-black text-white w-max">
+  Suggest Messages
+</button>
         <h3>Select any message to send</h3>
 
         <section className=" w-[85%] flex flex-col space-y-3 py-3 px-3 bg-white text-black rounded-lg shadow-lg ">
-          <h3>Suggested Messags</h3>
-          <div className="flex flex-col space-y-1 scroll-y-auto">
-              {suggestedMessages.map((items,index) => (
-                <p key={index} className="text-md border-b-2 border-grew-200 pb-1">
-                    {items}
-                    </p>
-              ))}
-          </div>
-        </section>
+  <h3>Suggested Messages</h3>
+  <div className="flex flex-col space-y-1 scroll-y-auto">
+    {suggestedMessages.map((item, index) => (
+      <p
+        key={index}
+        onClick={() => setContent(item)}
+        className="text-md border-b-2 border-gray-200 pb-1 cursor-pointer"
+      >
+        {item}
+      </p>
+    ))}
+  </div>
+</section>
+
       </div>
     </div>
   );

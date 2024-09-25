@@ -92,6 +92,7 @@ function Dashboard() {
     [toast]
   );
 
+  // To check that the user is login or not
   useEffect(() => {
     if (!session || !session.user) return;
 
@@ -159,27 +160,32 @@ function Dashboard() {
     });
   };
 
-  // To edit messagee
   const handleEditMessage = async (content: string, messageId: string) => {
-    console.log("Attempting to post message content:", content); // Debug log
-    try { 
-      const response = await axios.post("/api/save-message-content", { content });
-      console.log("Response from API:", response.data); // Debug log
-      router.push(`${profileUrl}`);
-      setTimeout(() =>{
-        handleDeleteMessages(messageId)},3000)
-    } catch (error) {
-      console.error("Error posting message content:", error); // Debug log
-      toast({
-        title: "Error",
-        description: "Unable to edit the message.",
-        variant: "destructive",
-      });
+  try { 
+    const ContentResponse = await axios.post("/api/save-message-content", { content });
+
+    if (ContentResponse.data.success) {
+      setMessages(messages.filter((message) => message._id !== messageId));
     }
-  };
+
+      const deleteResponse = await axios.delete<ApiResponse>(
+        `/api/delete-message/${messageId}`
+      );
+      
+      router.push(`${profileUrl}`);
+  }
+  catch (error) {
+    toast({
+      title: "Error",
+      description: "Unable to edit the message.",
+      variant: "destructive",
+    });
+  }
+};
+
 
   return (
-    <div className="my-8 mx-3 p-6 bg-white rounded shadow-lg max-w-5xl md:mx-8 lg:mx-auto">
+    <div className="my-8 mx-3 p-6 bg-white rounded shadow-lg lg:max-w-30 max-w-4xl md:mx-8 lg:mx-auto">
       <h1 className="text-2xl md:text-4xl font-bold mb-4">User Dashboard</h1>
 
       <div className="mb-4">
